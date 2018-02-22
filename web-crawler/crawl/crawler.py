@@ -59,11 +59,12 @@ def parse_url(current_url, to_visit_set):
         query = next_split.query if next_split.query != '' else current_split.query
         if (query != ''):
             next_url += '?' + query
-                   
-        to_visit_set.add(sanitize_url(next_url))
         
-        if (current_split.netloc != next_split.netloc):
-            G.add_connection(current_split.netloc, next_split.netloc)
+        sanitized = sanitize_url(next_url)
+        if not sanitized in to_visit_set:
+            to_visit_set.add(sanitize_url(next_url))
+            if (current_split.netloc != next_split.netloc):
+                G.add_connection(current_split.netloc, next_split.netloc)
         
     resp.close()
     
