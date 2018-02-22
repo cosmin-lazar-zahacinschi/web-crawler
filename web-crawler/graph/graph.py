@@ -1,5 +1,6 @@
 from threading import Thread, Condition, Timer, Lock
 from crawl import log
+from persistency import persistency
 
 class Graph(Thread):
     
@@ -45,6 +46,7 @@ class Graph(Thread):
     
     def do_update(self):
         self.condition.acquire()
-        log.info(self.edgeCount)
+        persistency.add_connections(self.edgeCount)
+        self.edgeCount.clear()
         self.update_timer_started = False
         self.condition.release()

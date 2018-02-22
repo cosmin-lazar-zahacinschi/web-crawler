@@ -3,6 +3,7 @@ from crawl import log
 from bs4 import BeautifulSoup
 from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
 from graph import G
+from ssl import CertificateError
 
 def sanitize_url(url):
 
@@ -22,6 +23,9 @@ def parse_url(current_url, to_visit_set):
         log.error(e)
         return
     except UnicodeError as e:
+        log.error(e)
+        return
+    except CertificateError as e:
         log.error(e)
         return
     
@@ -63,6 +67,7 @@ def parse_url(current_url, to_visit_set):
         sanitized = sanitize_url(next_url)
         if not sanitized in to_visit_set:
             to_visit_set.add(sanitize_url(next_url))
+            next_split = urlsplit(next_url)
             if (current_split.netloc != next_split.netloc):
                 G.add_connection(current_split.netloc, next_split.netloc)
         
