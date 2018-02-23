@@ -1,6 +1,5 @@
-from threading import Thread, Condition, Timer, Lock
-from crawl import log
-from persistency import persistency
+from threading import Thread, Condition, Timer
+import persistency
 
 class Graph(Thread):
     
