@@ -10,6 +10,6 @@ if __name__ == '__main__':
     
     G.start()
     
-    crawler.start_crawl("http://www.hotnews.ro")
+    crawler.start_crawl("http://www.fluierul.ro")
 else:
     print(configuration.get_prop('prop1'))

@@ -11,22 +11,22 @@ def add_connections(newConnections):
         
         v1 = client_.query('SELECT FROM Site WHERE url = "%s"' % (links[0]), 1)
         if (len(v1) == 0):
-            client_.command('CREATE VERTEX Site SET url = "%s"' % (links[0]))
-            v1 = client_.query('SELECT FROM Site WHERE url = "%s"' % (links[0]))          
-            
-            
+            client_.command('CREATE VERTEX Site SET url = "%s"' % (links[0]))      
+                        
         v2 = client_.query('SELECT FROM Site WHERE url = "%s"' % (links[1]), 1)
         if (len(v2) == 0):
             client_.command('CREATE VERTEX Site SET url = "%s"' % (links[1]))
-            v2 = client_.query('SELECT FROM Site WHERE url = "%s"' % (links[1]))
 
         count = newConnections[links]
-        batch_cmds = ['begin']
         
-        for i in range(count):
-            batch_cmds.append('CREATE EDGE links_to FROM (SELECT FROM Site WHERE url = "%s") '
-                              'TO (SELECT FROM Site WHERE url = "%s")' % (links[0], links[1]))
+        edge_query = client_.query('SELECT FROM links_to WHERE out in (SELECT @rid FROM Site WHERE url = "%s") '
+                             'and in in (SELECT @rid FROM Site WHERE url = "%s")' % (links[0], links[1]))
         
-        batch_cmds.append("commit retry 100;")
-        cmd = ';'.join(batch_cmds)
-        client_.batch(cmd)
+        if (len(edge_query) == 0):
+            client_.command('CREATE EDGE links_to FROM (SELECT FROM Site WHERE url = "%s") '
+                              'TO (SELECT FROM Site WHERE url = "%s") SET count = %d' % (links[0], links[1], count))
+        else:
+            edge = edge_query[0].oRecordData
+            new_count = edge['count'] + count
+            client_.command('UPDATE %s SET count = %d' % (edge_query[0]._rid, new_count))
+            
